@@ -1,0 +1,18 @@
+{
+  "name": "slack-bot",
+  "version": "1.0.0",
+  "description": "버튼 응답형 슬랙봇",
+  "main": "slack-bot.js",
+  "scripts": {
+    "run": "node slack-bot.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "bohyun",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "express": "^4.17.1",
+    "request": "^2.88.2"
+  }
+}
