@@ -52,10 +52,6 @@ app.post('/slack/choice-class', urlEncodedParser, (req, res) => {
     sendMessageToSlackResponseURL(responseURL, message)
 })
 
-let beforeEvent
-let springBlockId = ''
-let javaBlockId = ''
-
 app.post('/slack/actions', urlEncodedParser, (req, res) => {
     res.status(200).end() // best practice to respond with 200 status
     let actionJSONPayload = JSON.parse(req.body.payload) // parse URL-encoded payload JSON string
@@ -107,24 +103,15 @@ app.post('/slack/actions', urlEncodedParser, (req, res) => {
             break
 
         case 'spring':
-            beforeEvent = clickedEvent
-            message = inputMessage('\'스프링 프레임워크\' 또는 \'스프링 부트\' 를 입력해주세요.')
-            springBlockId = ''
+            message = inputMessage(clickedEvent, '\'스프링 프레임워크\' 또는 \'스프링 부트\' 를 입력해주세요.')
             break
 
         case 'java':
-            beforeEvent = clickedEvent
-            message = inputMessage('\'자바 입문\' 또는 \'자바8\' 을 입력해주세요.')
-            springBlockId = ''
+            message = inputMessage(clickedEvent, '\'자바 입문\' 또는 \'자바8\' 을 입력해주세요.')
             break
 
         default:
-            let blockId = actionJSONPayload.actions[0].block_id
-
-            settingBlockId(blockId)
-
-            let searchGb = springBlockId === blockId ? 'Spring' : javaBlockId === blockId ? 'Java' : ''
-
+            let searchGb = actionJSONPayload.message.blocks[0].element.action_id
             let searchVal = actionJSONPayload.actions[0].value
 
             let link = searchVal === '스프링 부트' ? "<https://www.inflearn.com/course/%EC%8A%A4%ED%94%84%EB%A7%81-%EC%9E%85%EB%AC%B8-%EC%8A%A4%ED%94%84%EB%A7%81%EB%B6%80%ED%8A%B8/dashboard|스프링 입문 - 코드로 배우는 스프링 부트, 웹 MVC, DB 접근 기술>" :
@@ -171,15 +158,7 @@ function sendMessageToSlackResponseURL(responseURL, jsonMessage) {
     })
 }
 
-function settingBlockId(blockId) {
-    if (springBlockId === '' && beforeEvent === 'spring') {
-        springBlockId = blockId
-    } else if (javaBlockId === '' && beforeEvent === 'java') {
-        javaBlockId = blockId
-    }
-}
-
-function inputMessage(label) {
+function inputMessage(event, label) {
     return {
         "title": {
             "type": "plain_text",
@@ -196,7 +175,9 @@ function inputMessage(label) {
             {
                 "type": "input",
                 "element": {
-                    "type": "plain_text_input"
+                    "type": "plain_text_input",
+                    // 어떤 이벤트의 input text 인지 구분하기 위해 action_id 추가
+                    "action_id": event
                 },
                 "label": {
                     "type": "plain_text",
